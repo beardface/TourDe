@@ -1,0 +1,19 @@
+{'Circuits': 
+	{
+          'Tour-De-France': 
+		{
+                 '0001': 
+			{
+			 'CourseName': 'Tour De France: Leg 1', 
+			 'CourseDifficulty': 'Easy', 
+			 'CourseDistance': '10 Km'
+			}, 
+		 '0002':
+			{
+			 'CourseName': 'Tour De France: Leg 2', 
+			 'CourseDifficulty': 'Easy', 
+			 'CourseDistance': '20 Km'
+			}, 
+		}
+	}
+}

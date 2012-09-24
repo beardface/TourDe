@@ -8,8 +8,21 @@ import plot
 from bike import bike
 import time, datetime
 
+import ConfigParser
+
 class tourde:
 
+	def load_configuration(self, cfg_file):
+		config = ConfigParser.RawConfigParser()
+		
+		try:
+			with open(cfg_file) as f: pass
+		except IOError as e:
+			build_configuration(config)
+
+		config.read(cfg_file)
+		return config
+	
 	def Start(self):
 		self.start_time = time.time()-self.elapsed_time
 		self.running = True
@@ -27,16 +40,23 @@ class tourde:
 		self.elapsed_time = time.time()-self.start_time
 
 	def Update(self, screen, route):
-
 		self.route = route
 		main_dir = os.path.split(os.path.abspath(__file__))[0]
 
+		self.update = False
+		
 		if not self.init:
-			self.image = pygame.image.load (os.path.join (main_dir, route+"/route.bmp")).convert()
 			self.init = True
-			self.image = pygame.transform.scale(self.image, (640,480))
 			self.Start()
+			self.update = False
+			self.config = self.load_configuration((route+"/route.dat"))
+			print self.config.getint('Route', 'image_count')
+			if self.config.getint('Route', 'image_count') >= (self.position+1):
+				self.image = pygame.image.load (os.path.join (main_dir, route+"/ROUTE-"+str(self.position)+".jpg")).convert()
+				self.next_image = pygame.image.load (os.path.join (main_dir, route+"/ROUTE-"+str(self.position+1)+".jpg")).convert()
+				
 
+			
 		for event in pygame.event.get():
 			if event.type == QUIT:
 				self.quit = True
@@ -44,9 +64,13 @@ class tourde:
 				if self.running:
 					self.position +=1
 					if self.position+1 > len(self.route_points):
-						self.position = 0
+						self.position = 0 #TODO Route Done!
+					if self.config.getint('Route', 'iamge_count') >= (self.position+1):
+						self.image = pygame.image.load (os.path.join (main_dir, route+"/ROUTE-"+str(self.position)+".jpg")).convert()
+						self.next_image = pygame.image.load (os.path.join (main_dir, route+"/ROUTE-"+str(self.position+1)+".jpg")).convert()
 					self.bike.dist+=.1
 					self.bike.rpm=300
+					self.update = True
 
 			elif event.type == KEYDOWN and event.key == K_b:	
 				if not self.running:
@@ -61,27 +85,33 @@ class tourde:
 		if self.running:
 			seconds = time.time() - self.start_time
 			self.bike.time = str(datetime.timedelta(seconds=int(seconds)))
+			if not self.last_time == self.bike.time:
+				self.last_time = self.bike.time
+				self.update = True
 
-		#Blit World Data
-		screen.blit (self.image, (0,0))
+		if self.update:
+			#Blit World Data
+			screen.blit (self.image, (0,0))
 
-		#Blit HUD
-		screen.blit(hud.get_hud(self.bike), (0,0))
-		#NAV BOX
-		screen.blit(plot.get_chart(self.route_points,self.position), (10, 380))
+			#Blit HUD
+			screen.blit(hud.get_hud(self.bike), (0,0))
+		
+			#NAV BOX
+			screen.blit(plot.get_chart(self.route_points,self.position), (10, 380))
 
 		return True
 
 	def __init__(self):
 		self.route_points = [300,320,405,233,323,325,343,343,400]
-
+		self.update = True
+		self.last_time = ""
 		self.elapsed_time = 0
 		self.start_time = 0
 		self.end_time = 0
 		self.running = False
 		self.bike = bike()
 		self.quit = False
-		self.position = 0
+		self.position = 1
 		self.route = ""
 		self.init = False
 

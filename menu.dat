@@ -1,5 +1,14 @@
 {'Circuits': 
 	{
+          'Tour-De-America': 
+		{
+            '0001': 
+			{
+			 'CourseName': 'New York - 5th Avenue', 
+			 'CourseDifficulty': 'Easy', 
+			 'CourseDistance': '5.7 Miles'
+			},
+		},
           'Tour-De-France': 
 		{
                  '0001': 

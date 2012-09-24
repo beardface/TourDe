@@ -1,12 +1,13 @@
 import pygame
 from bike import bike
 
-def get_hud(abike):
-  hud = pygame.Surface((640, 80))
+def get_hud(abike, width, height):
+  hud = pygame.Surface((width, 80))
   
   hud.blit(get_rpmbar(abike.rpm), (0,0))
-  hud.blit(get_timebar(abike.time), (160, 0))
-  hud.blit(get_distbar(abike.dist), (500,0))
+  hud.blit(get_timebar(abike.time), (width/2.0-170, 0))
+  hud.blit(get_distbar(abike.dist), (width-150,0))
+  hud.set_colorkey((0,0,0))
   return hud
 
 def get_rpmbar(rpm):
@@ -39,6 +40,7 @@ def get_timebar(t):
   textpos.centerx = timebar.get_rect().centerx
   textpos.centery = timebar.get_rect().centery
   timebar.blit(text, textpos)
+  timebar.set_colorkey((250,250,250))
 
   return timebar
 

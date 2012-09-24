@@ -57,7 +57,9 @@ def main():
 		
 		if menuPtr.quit or tourdePtr.quit:
 			going = False
-		pygame.display.flip()
+			
+		pygame.display.flip()   # Call this only once per loop
+		pygame.time.Clock().tick(30)     # forces the program to run at 30 fps.
 	pygame.quit()
 
 if __name__ == '__main__': 

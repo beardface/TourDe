@@ -9,6 +9,7 @@ from bike import bike
 import time, datetime
 
 import ConfigParser
+import serialThread
 
 class tourde:
 
@@ -41,7 +42,7 @@ class tourde:
 
 	def MoveBike(self,route):
 		main_dir = os.path.split(os.path.abspath(__file__))[0]
-		self.alpha -= self.dist_step
+		self.alpha -= (int(self.bike.rpm)/10)
 		if(self.alpha < 0):
 			self.position += 1
 			self.alpha = 255 
@@ -51,14 +52,15 @@ class tourde:
 				self.image = pygame.image.load (os.path.join (main_dir, route+"/ROUTE-"+str(self.position)+".jpg")).convert()
 				self.next_image = pygame.image.load (os.path.join (main_dir, route+"/ROUTE-"+str(self.position+1)+".jpg")).convert()
 		self.bike.dist += .1
-		self.bike.rpm = 300
 		self.update = True
 		
-	def Update(self, screen, route):
+	def Update(self, screen, route, sThread):
 		self.route = route
 		main_dir = os.path.split(os.path.abspath(__file__))[0]
 
 		self.update = False
+
+		self.bike.rpm = sThread.getBikeRpm()
 		
 		if not self.init:
 			self.init = True
@@ -85,6 +87,9 @@ class tourde:
 					self.Pause()
 			elif event.type == KEYDOWN and event.key == K_m:	
 				self.Stop()
+		
+		if(self.running):
+			self.MoveBike(route)
 		
 		#Update Bike
 		if self.running:

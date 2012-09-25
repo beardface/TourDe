@@ -2,9 +2,15 @@ import os
 import pygame
 from pygame.locals import *
 import ConfigParser
-
+import thread, threading
+import serialThread
 from tourde import tourde
 from menu import menu
+
+import serial
+
+import sys
+import signal
 
 main_dir = os.path.split(os.path.abspath(__file__))[0]
 config_file_name = 'torde.cfg'
@@ -33,6 +39,17 @@ def load_configuration():
 	return config
 
 def main():
+	lock = threading.Lock()
+	sThread = serialThread.SerialThread(lock)
+	sThread.start()
+	
+	def signal_handler(signal, frame):
+		print 'Control C... Exiting'
+		sThread.stop()
+		sys.exit(0)
+
+	signal.signal(signal.SIGINT, signal_handler)
+
 	pygame.init ()
 	config = load_configuration()
 	screen = pygame.display.set_mode(
@@ -53,13 +70,14 @@ def main():
 		if menuPtr.show:
 			menuPtr.Update(screen)
 		else:
-			tourdePtr.Update(screen, menuPtr.GetCurrentRoutePath())
+			tourdePtr.Update(screen, menuPtr.GetCurrentRoutePath(), sThread)
 		
 		if menuPtr.quit or tourdePtr.quit:
 			going = False
 			
 		pygame.display.flip()   # Call this only once per loop
 		pygame.time.Clock().tick(30)     # forces the program to run at 30 fps.
+		
 	pygame.quit()
 
 if __name__ == '__main__': 
